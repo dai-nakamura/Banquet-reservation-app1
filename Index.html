@@ -1,0 +1,2445 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>宴会・婚礼予約入力 v7</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --line: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --dark: #111827;
+      --soft: #f3f4f6;
+      --danger: #fee2e2;
+      --warning: #ffedd5;
+      --success: #dcfce7;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .app {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
+    }
+
+    .sub {
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.2fr 0.95fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 12px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .today-summary {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .order-details-hidden {
+  display: none;
+}
+.allergy-person-card.collapsed > :not(.allergy-person-head) {
+  display: none;
+}
+
+    .grid-2,
+    .grid-3,
+    .grid-4 {
+      display: grid;
+      gap: 10px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .grid-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .label {
+      display: block;
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .input,
+    .select,
+    .textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      background: #fff;
+    }
+
+    .textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .button-row,
+    .pill-row,
+    .action-row,
+    .badge-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      appearance: none;
+      border: none;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-dark {
+      background: var(--dark);
+      color: #fff;
+    }
+
+    .btn-light {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #991b1b;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: #9a3412;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 4px;
+    }
+
+    .items-area,
+    .list,
+    .task-list,
+    .report-list,
+    .mini-list,
+    .allergy-area {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item-card,
+    .order-card,
+    .task-card,
+    .report-card,
+    .allergy-person-card,
+    .allergy-wrapper {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px;
+      background: #fff;
+    }
+
+    .item-head,
+    .order-top,
+    .task-head,
+    .allergy-person-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .allergy-person-card.collapsed > :not(.allergy-person-head) {
+      display: none !important;;
+    }
+
+    .allergy-person-head {
+      cursor: pointer;
+    }
+
+    .item-title {
+      font-size: 16px;
+      font-weight: 800;
+    }
+    .item-card.collapsed > :not(.item-head) {
+      display: none !important;
+    }
+
+    .item-head {
+      cursor: pointer;
+    }
+
+    .order-title {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .order-card.task {
+      border: 2px solid #f59e0b;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      background: var(--soft);
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .mini-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: #fafafa;
+    }
+   .order-table-wrap {
+  overflow-x: auto;
+}
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.order-table th,
+.order-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 8px 6px;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.order-table th {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.order-table button {
+  padding: 6px 8px;
+  font-size: 12px;
+}
+    .empty {
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      background: #fafafa;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .pill.active {
+      background: var(--dark);
+      color: #fff;
+      border-color: var(--dark);
+    }
+
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .check-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .allergy-person-title,
+    .task-title,
+    .report-title {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .family-box {
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .family-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .family-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .family-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px;
+      background: #fafafa;
+    }
+
+    .family-item label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .allergy-summary {
+      margin-top: 6px;
+      color: #9a3412;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .task-check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #fafafa;
+      margin-top: 8px;
+    }
+
+    .task-check.done {
+      opacity: 0.55;
+      text-decoration: line-through;
+    }
+
+    .task-check input {
+      margin-top: 4px;
+      transform: scale(1.15);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 24, 39, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+
+    .modal-panel {
+      width: min(1150px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 22px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+      padding: 18px;
+    }
+
+    .modal-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .print-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .allergy-card {
+      min-height: 165px;
+      height: auto;
+      overflow: visible;
+    }
+
+    .allergy-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: flex-start;
+    }
+
+    .allergy-title {
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .allergy-sub {
+      font-size: 10px;
+      color: #4b5563;
+      line-height: 1.35;
+    }
+
+    .allergy-label {
+      font-size: 9px;
+      font-weight: 800;
+      color: #6b7280;
+      letter-spacing: .03em;
+    }
+
+    .allergy-box {
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 6px 8px;
+      background: #fafafa;
+      font-size: 11px;
+      line-height: 1.35;
+      white-space: pre-wrap;
+      min-height: 34px;
+      overflow: hidden;
+    }
+
+    .allergy-card.compact {
+      padding: 10px;
+      gap: 6px;
+    }
+
+    .allergy-card.compact {
+      padding: 10px;
+      gap: 6px;
+    }
+
+    .compact-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .compact-main {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .compact-title {
+      font-size: 12px;
+      line-height: 1.2;
+      margin: 0;
+      white-space: normal;
+      overflow: visible;
+      word-break: break-word;
+    }
+
+    .compact-sub {
+      font-size: 10px;
+      line-height: 1.2;
+      margin-top: 2px;
+      color: #4b5563;
+      white-space: normal;
+      overflow: visible;
+      word-break: break-word;
+    }
+
+    .person-badge {
+      width: 54px;
+      height: 54px;
+      border-radius: 999px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #111827;
+      flex-shrink: 0;
+    }
+
+    .compact-line {
+      font-size: 10px;
+      line-height: 1.3;
+      white-space: normal;
+      overflow: visible;
+      word-break: break-word;
+    }
+
+    .view-hidden {
+
+      display: none !important;
+
+    }
+
+    .date-range-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: end;
+      margin-bottom: 12px;
+    }
+
+    .date-range-row .field {
+      margin-bottom: 0;
+    }
+
+    .date-range-sep {
+      text-align: center;
+      font-weight: 700;
+      color: var(--muted);
+      padding-bottom: 12px;
+    }
+
+    @media (max-width:1024px) {
+
+      .layout,
+      .grid-3,
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .category-grid,
+      .grid-4,
+      .check-grid,
+      .family-list,
+      .print-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .date-range-row {
+        grid-template-columns: 1fr;
+      }
+
+      .date-range-sep {
+        display: block;
+        text-align: center;
+        padding: 0;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 portrait;
+        margin: 8mm;
+      }
+
+      html,
+      body {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+      }
+
+      body * {
+        visibility: hidden;
+      }
+
+      #printModal,
+      #printModal * {
+        visibility: visible;
+      }
+
+      #printModal {
+        position: absolute;
+        inset: 0;
+        background: #fff;
+        padding: 0;
+        margin: 0;
+      }
+
+      #printModal .modal-panel {
+        width: 100%;
+        max-height: none;
+        overflow: visible;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+        margin: 0;
+      }
+
+      #printModal .modal-toolbar {
+        display: none !important;
+      }
+
+      #printCardsArea.print-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8mm;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+      .allergy-card {
+        min-height: 80mm;
+        height: auto;
+        overflow: visible;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .allergy-title {
+        font-size: 11pt;
+        line-height: 1.2;
+      }
+
+      .allergy-sub {
+        font-size: 8pt;
+        line-height: 1.25;
+      }
+
+      .allergy-label {
+        font-size: 7pt;
+        line-height: 1.2;
+      }
+
+      .allergy-box {
+        font-size: 8pt;
+        line-height: 1.25;
+        min-height: 10mm;
+        max-height: 15mm;
+        overflow: hidden;
+        border-radius: 2mm;
+      }
+
+      .compact-title {
+        font-size: 9pt;
+      }
+
+      .compact-sub {
+        font-size: 7.5pt;
+      }
+
+      .person-badge {
+        width: 13mm;
+        height: 13mm;
+        font-size: 7.5pt;
+      }
+
+      .compact-line {
+        font-size: 7.5pt;
+        line-height: 1.15;
+      }
+    }
+    .section-box {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      background: #fff;
+    }
+
+    .section-content {
+      padding: 14px;
+    }
+
+    .section-content.hidden {
+      display: none;
+    }
+   .order-detail-panel {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  background: #fff;
+}
+
+.order-detail-title {
+  font-size: 16px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.order-detail-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+@media (max-width: 600px) {
+  .app {
+    padding: 10px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .sub {
+    display: none;
+  }
+
+  .header {
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .action-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 6px;
+  }
+
+  .action-row button {
+    white-space: nowrap;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .layout {
+    display: block;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 16px;
+    margin-bottom: 12px;
+  }
+
+  .category-grid,
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .check-grid,
+  .family-list {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .section-title {
+    font-size: 16px;
+  }
+
+  .today-summary {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .order-table,
+  .order-table thead,
+  .order-table tbody,
+  .order-table tr,
+  .order-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .order-table thead {
+    display: none;
+  }
+
+  .order-table tr {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .order-table td {
+    border-bottom: none;
+    padding: 4px 0;
+    white-space: normal;
+  }
+
+  .order-table td:nth-child(1)::before { content: "日付："; font-weight: 800; }
+  .order-table td:nth-child(2)::before { content: "区分："; font-weight: 800; }
+  .order-table td:nth-child(3)::before { content: "名前："; font-weight: 800; }
+  .order-table td:nth-child(4)::before { content: "会場："; font-weight: 800; }
+  .order-table td:nth-child(5)::before { content: "商品："; font-weight: 800; }
+  .order-table td:nth-child(6)::before { content: "状態："; font-weight: 800; }
+
+  .order-table td:nth-child(7) {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <h1 class="title">宴会・婚礼予約入力 v7</h1>
+        <div class="sub">UI維持 / アレルギー全体管理 / 旧データ自動変換 / 印刷ズレ修正版</div>
+      </div>
+      <div class="action-row">
+        <input type="file" id="importJsonInput" accept=".json,application/json" hidden />
+        <button class="btn-light" id="importJsonBtn">JSON読み込み</button>
+        <button class="btn-light" id="exportBtn">JSON書き出し</button>
+        <button class="btn-light" id="printCardsBtn">カード作成</button>
+        <button class="btn-light" id="taskModalBtn">タスク確認</button>
+        <button class="btn-light" id="monthlyReportBtn">月末集計</button>
+        <button class="btn-light" id="resetFormBtn">入力リセット</button>
+        <button class="btn-danger" id="clearAllBtn">全件削除</button>
+        <button class="btn-light toggle-detail-btn">
+  詳細
+</button>
+      </div>
+    </div>
+    <div class="pill-row" id="viewToggle">
+      <button class="pill active" data-view="form">入力</button>
+      <button class="pill" data-view="list">一覧</button>
+    </div>
+    <div class="today-summary" id="todaySummary"></div>
+
+    <div class="layout">
+      <section class="card">
+        <h2 class="section-title">注文入力</h2>
+        <div class="field">
+          <label class="label">カテゴリ</label>
+          <div class="category-grid" id="categoryGrid"></div>
+          <div class="helper">ギフトは婚礼に統合済みです。婚礼の中で引き菓子・ギフト商品を追加できます。</div>
+        </div>
+
+        <form id="orderForm" novalidate>
+          <div class="section-box">
+
+            <div class="section-header">
+              基本情報
+            </div>
+
+            <div class="section-content" id="basicInfoSection">
+              <div class="grid-3">
+                <div class="field">
+                  <label class="label">日付</label>
+                  <input class="input" type="date" id="orderDate" />
+                </div>
+                <div class="field">
+                  <label class="label">時間</label>
+                  <input class="input" type="time" id="orderTime" />
+                </div>
+                <div class="field">
+                  <label class="label" id="nameLabel">宴会名 / 名前</label>
+                  <input class="input" id="clientName" placeholder="例：田中様宴会 / 新郎新婦名 / 記念日名義" />
+                </div>
+              </div>
+
+              <div class="grid-3">
+                <div class="field">
+                  <label class="label">会場 / 受け渡し場所</label>
+                  <input class="input" id="venue" placeholder="例：鳳凰の間 / レストラン / フロント" list="savedVenueList" />
+                </div>
+                <div class="field" id="guestCountWrap">
+                  <label class="label">人数</label>
+                  <input class="input" type="number" id="guestCount" min="0" placeholder="例：50" />
+                </div>
+                <div class="field" id="coursePriceWrap">
+                  <label class="label">コース料金</label>
+                  <input class="input" type="number" id="coursePrice" min="0" placeholder="例：8000" />
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="field">
+                  <label class="label">ステータス</label>
+                  <select class="select" id="status">
+                    <option>未確認</option>
+                    <option>製造待ち</option>
+                    <option>製造中</option>
+                    <option>完成</option>
+                    <option>納品済み</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="field" id="afternoonTeaWrap">
+              <label class="label">アフタヌーンティー区分</label>
+              <select class="select" id="afternoonTeaType">
+                <option value="">未選択</option>
+                <option>通常</option>
+                <option>季節限定</option>
+                <option>取材用</option>
+                <option>その他</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label">全体備考</label>
+            <textarea class="textarea" id="orderNotes" placeholder="例：会場搬入 / 引き菓子同時納品 / アレルギー対応あり"></textarea>
+          </div>
+
+          <div class="field">
+            <label class="label">アレルギー管理（予約全体）</label>
+            <div class="allergy-wrapper">
+              <div class="allergy-person-head">
+                <div class="allergy-person-title">対象者一覧</div>
+                <button type="button" class="btn-light" id="addMasterAllergyBtn">＋ 人追加</button>
+              </div>
+              <div class="helper">商品ごとではなく、この予約全体でアレルギー対象者を管理します。</div>
+              <div class="allergy-area" id="masterAllergyArea"></div>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="button-row">
+              <button type="button" class="btn-dark" id="addItemBtn">＋ 商品追加</button>
+              <button type="button" class="btn-light" id="addDessertBtn">＋ 皿盛り追加</button>
+              <button type="button" class="btn-light" id="addCakeBtn">＋ ケーキ追加</button>
+              <button type="button" class="btn-light" id="addGiftBtn">＋ ギフト追加</button>
+            </div>
+            <div class="helper">宴会・婚礼の中に、皿盛りデザート、ケーキ、引き菓子などを複数入れられます。</div>
+          </div>
+
+          <div class="items-area" id="itemsArea"></div>
+          <div class="button-row" style="margin-top: 14px;">
+            <button type="submit" class="btn-dark" id="submitBtn">登録する</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2 class="section-title">一覧</h2>
+        <div class="pill-row" id="filterPills"></div>
+        <div class="date-range-row">
+          <div class="field">
+            <label class="label">開始日</label>
+            <input type="date" id="fromDate" class="input" />
+          </div>
+
+          <div class="date-range-sep">〜</div>
+
+          <div class="field">
+            <label class="label">終了日</label>
+            <input type="date" id="toDate" class="input" />
+          </div>
+
+          <button class="btn-light" id="clearDateFilter" type="button">クリア</button>
+        </div>
+        <div class="grid-2" style="margin-bottom:12px;">
+          <input class="input" id="searchInput" placeholder="名前・会場・商品名・備考で検索" />
+          <select class="select" id="sortSelect">
+            <option value="dateAsc">日付昇順</option>
+            <option value="dateDesc">日付降順</option>
+            <option value="createdDesc">登録が新しい順</option>
+          </select>
+        </div>
+        <div class="list" id="ordersList"></div>
+        <div class="order-detail-panel hidden" id="orderDetailPanel"></div>
+      </section>
+    </div>
+  </div>
+
+  <datalist id="savedVenueList"></datalist>
+
+  <div class="modal hidden" id="printModal">
+    <div class="modal-panel">
+      <div class="modal-toolbar">
+        <div>
+          <div class="section-title" style="margin:0;">アレルギー・注意カード</div>
+          <div class="helper">固定レイアウトで印刷ズレしにくい形にしています。</div>
+        </div>
+        <div class="action-row">
+          <button class="btn-dark" id="runPrintBtn">印刷</button>
+          <button class="btn-light" id="closePrintBtn">閉じる</button>
+        </div>
+      </div>
+      <div class="print-grid" id="printCardsArea"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="taskModal">
+    <div class="modal-panel">
+      <div class="modal-toolbar">
+        <div>
+          <div class="section-title" style="margin:0;">未確認・仕込み前タスク</div>
+          <div class="helper">対象者が選択したアレルゲンに関係する同科確認だけを出します。</div>
+        </div>
+        <div class="action-row"><button class="btn-light" id="closeTaskBtn">閉じる</button></div>
+      </div>
+      <div class="grid-3" style="margin-bottom:12px;">
+        <select class="select" id="taskDateFilter">
+          <option value="all">全日程</option>
+          <option value="today">今日</option>
+          <option value="tomorrow">明日</option>
+          <option value="thisWeek">今週</option>
+        </select>
+        <select class="select" id="taskCategoryFilter">
+          <option value="all">全カテゴリ</option>
+          <option value="宴会">宴会</option>
+          <option value="婚礼">婚礼</option>
+          <option value="アニバーサリー">アニバーサリー</option>
+          <option value="アフタヌーンティー">アフタヌーンティー</option>
+        </select>
+        <select class="select" id="taskTypeFilter">
+          <option value="all">全タスク</option>
+          <option value="内容確認">内容確認</option>
+          <option value="仕込み">仕込み</option>
+          <option value="同科確認">同科確認</option>
+        </select>
+      </div>
+      <div class="task-list" id="taskListArea"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="reportModal">
+    <div class="modal-panel">
+      <div class="modal-toolbar">
+        <div>
+          <div class="section-title" style="margin:0;">月末集計</div>
+          <div class="helper">納品済みの予約だけを集計します。</div>
+        </div>
+        <div class="action-row">
+          <input class="input" type="month" id="reportMonthInput" style="width:180px;" />
+          <button class="btn-dark" id="runReportBtn">集計する</button>
+          <button class="btn-light" id="closeReportBtn">閉じる</button>
+        </div>
+      </div>
+      <div id="reportSummary"></div>
+    </div>
+  </div>
+
+  <template id="itemTemplate">
+    <div class="item-card">
+      <div class="item-head">
+        <div class="item-title">商品 <span class="item-number"></span></div>
+        <button type="button" class="btn-danger remove-item-btn">削除</button>
+      </div>
+
+      <div class="grid-4">
+        <div class="field">
+          <label class="label">商品区分</label>
+          <select class="select item-type">
+            <option>皿盛りデザート</option>
+            <option>ホールケーキ</option>
+            <option>ウエディングケーキ</option>
+            <option>アニバーサリーケーキ</option>
+            <option>アフタヌーンティー</option>
+            <option>ギフト</option>
+            <option>その他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">商品名</label>
+          <input class="input item-name" placeholder="例：季節の皿盛り / いちごショート" />
+        </div>
+        <div class="field">
+          <label class="label">数量</label>
+          <input class="input item-quantity" type="number" min="1" value="1" />
+        </div>
+        <div class="field">
+          <label class="label">原価</label>
+          <input class="input item-cost" type="number" min="0" placeholder="例：3500" />
+        </div>
+      </div>
+
+      <div class="grid-4 cake-fields hidden">
+        <div class="field">
+          <label class="label">サイズ</label>
+          <select class="select cake-size">
+            <option value="">未選択</option>
+            <option>9cm</option>
+            <option>5号</option>
+            <option>6号</option>
+            <option>7号</option>
+            <option>尺</option>
+            <option>四角</option>
+          </select>
+        </div>
+        <div class="field square-size-wrap hidden">
+          <label class="label">四角サイズ</label>
+          <input class="input square-size" placeholder="例：30cm × 40cm" />
+        </div>
+        <div class="field multi-size-wrap">
+          <label class="label">段構成 / 複数サイズ</label>
+          <input class="input multi-size" placeholder="例：5号 + 7号 / 5号 + 尺" />
+        </div>
+        <div class="field">
+          <label class="label">プレート文言</label>
+          <input class="input plate-message" placeholder="例：Happy Wedding / Happy Birthday" />
+        </div>
+      </div>
+
+      <div class="field option-fields hidden">
+        <label class="label">オプション</label>
+        <div class="check-grid">
+          <label class="check-pill"><input type="checkbox" value="イチゴトッピング" class="option-check" />イチゴトッピング</label>
+          <label class="check-pill"><input type="checkbox" value="ミックスベリートッピング"
+              class="option-check" />ミックスベリートッピング</label>
+          <label class="check-pill"><input type="checkbox" value="フルーツ盛り" class="option-check" />フルーツ盛り</label>
+          <label class="check-pill"><input type="checkbox" value="特注" class="option-check" />特注</label>
+        </div>
+        <div class="field" style="margin-top:10px;"><input class="input option-free" placeholder="自由入力オプション" /></div>
+      </div>
+
+      <div class="field dessert-fields hidden">
+        <label class="label">皿盛り原価メモ</label>
+        <input class="input dessert-cost-note" placeholder="例：別アプリ原価 × 人数で計算" />
+      </div>
+
+      <div class="field">
+        <label class="label">商品備考</label>
+        <textarea class="textarea item-notes" placeholder="例：直接会場搬入 / 引き菓子として使用"></textarea>
+      </div>
+    </div>
+  </template>
+
+  <template id="allergyPersonTemplate">
+    <div class="allergy-person-card">
+      <div class="allergy-person-head">
+        <div class="allergy-person-title">対象者 <span class="person-no"></span></div>
+        <button type="button" class="btn-danger remove-allergy-person-btn">削除</button>
+      </div>
+      <div class="field">
+        <label class="label">対象者名 / 席情報</label>
+        <input class="input allergy-person-name" placeholder="例：新郎母 / A-3 / 1人目" />
+      </div>
+      <div class="field">
+        <label class="label">主アレルゲン</label>
+        <div class="check-grid">
+          <label class="check-pill"><input type="checkbox" value="卵" class="primary-allergen-check" />卵</label>
+          <label class="check-pill"><input type="checkbox" value="乳" class="primary-allergen-check" />乳</label>
+          <label class="check-pill"><input type="checkbox" value="小麦" class="primary-allergen-check" />小麦</label>
+          <label class="check-pill"><input type="checkbox" value="ナッツ" class="primary-allergen-check" />ナッツ</label>
+          <label class="check-pill"><input type="checkbox" value="えび" class="primary-allergen-check" />えび</label>
+          <label class="check-pill"><input type="checkbox" value="かに" class="primary-allergen-check" />かに</label>
+          <label class="check-pill"><input type="checkbox" value="桃" class="primary-allergen-check" />桃</label>
+          <label class="check-pill"><input type="checkbox" value="りんご" class="primary-allergen-check" />りんご</label>
+          <label class="check-pill"><input type="checkbox" value="なし" class="primary-allergen-check" />なし</label>
+          <label class="check-pill"><input type="checkbox" value="いちご" class="primary-allergen-check" />いちご</label>
+          <label class="check-pill"><input type="checkbox" value="キウイ" class="primary-allergen-check" />キウイ</label>
+          <label class="check-pill"><input type="checkbox" value="バナナ" class="primary-allergen-check" />バナナ</label>
+          <label class="check-pill"><input type="checkbox" value="ごま" class="primary-allergen-check" />ごま</label>
+          <label class="check-pill"><input type="checkbox" value="大豆" class="primary-allergen-check" />大豆</label>
+          <label class="check-pill"><input type="checkbox" value="ゼラチン" class="primary-allergen-check" />ゼラチン</label>
+          <label class="check-pill"><input type="checkbox" value="その他" class="primary-allergen-check" />その他</label>
+        </div>
+        <div class="allergy-summary"></div>
+      </div>
+
+      <div class="family-box">
+        <div class="family-title">同科確認</div>
+        <div class="family-list">
+          <div class="family-item">
+            <div>桃</div><label><input type="radio" class="family-status" value="未確認" checked /> 未確認</label><label><input
+                type="radio" class="family-status" value="可" /> 可</label><label><input type="radio"
+                class="family-status" value="NG" /> NG</label>
+          </div>
+          <div class="family-item">
+            <div>りんご</div><label><input type="radio" class="family-status" value="未確認" checked />
+              未確認</label><label><input type="radio" class="family-status" value="可" /> 可</label><label><input
+                type="radio" class="family-status" value="NG" /> NG</label>
+          </div>
+          <div class="family-item">
+            <div>なし</div><label><input type="radio" class="family-status" value="未確認" checked />
+              未確認</label><label><input type="radio" class="family-status" value="可" /> 可</label><label><input
+                type="radio" class="family-status" value="NG" /> NG</label>
+          </div>
+          <div class="family-item">
+            <div>さくらんぼ</div><label><input type="radio" class="family-status" value="未確認" checked />
+              未確認</label><label><input type="radio" class="family-status" value="可" /> 可</label><label><input
+                type="radio" class="family-status" value="NG" /> NG</label>
+          </div>
+          <div class="family-item">
+            <div>びわ</div><label><input type="radio" class="family-status" value="未確認" checked />
+              未確認</label><label><input type="radio" class="family-status" value="可" /> 可</label><label><input
+                type="radio" class="family-status" value="NG" /> NG</label>
+          </div>
+          <div class="family-item">
+            <div>あんず</div><label><input type="radio" class="family-status" value="未確認" checked />
+              未確認</label><label><input type="radio" class="family-status" value="可" /> 可</label><label><input
+                type="radio" class="family-status" value="NG" /> NG</label>
+          </div>
+          <div class="family-item">
+            <div>いちご</div><label><input type="radio" class="family-status" value="未確認" checked />
+              未確認</label><label><input type="radio" class="family-status" value="可" /> 可</label><label><input
+                type="radio" class="family-status" value="NG" /> NG</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div class="field">
+          <label class="label">最終除去対象</label>
+          <input class="input final-ng-input" placeholder="例：桃、ナッツ" />
+        </div>
+        <div class="field">
+          <label class="label">対応方法</label>
+          <select class="select allergy-method">
+            <option value="">未選択</option>
+            <option>別皿</option>
+            <option>除去</option>
+            <option>代替</option>
+            <option>要確認</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">人数</label>
+          <input class="input allergy-count" type="number" min="1" value="1" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="label">確認メモ</label>
+        <textarea class="textarea allergy-note" placeholder="例：桃はNG、りんごは可。本人確認済み"></textarea>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    const STORAGE_KEY = 'banquet_reservation_v7';
+    const VENUE_MEMORY_KEY = 'banquet_reservation_saved_venues_v1';
+
+    const TASK_CHECK_KEY = 'banquet_reservation_task_checks_v1';
+    const categories = ['宴会', '婚礼', 'アニバーサリー', 'アフタヌーンティー'];
+    const filters = ['全件', '今日', '明日', '今週', '未完了', '納品済み', 'タスクあり', ...categories];
+    const statusFlow = ['未確認', '製造待ち', '製造中', '完成', '納品済み'];
+    const presetOptions = ['イチゴトッピング', 'ミックスベリートッピング', 'フルーツ盛り', '特注'];
+    const roseFamily = ['桃', 'りんご', 'なし', 'さくらんぼ', 'びわ', 'あんず', 'いちご'];
+    const ALLERGY_MASTER = {
+      '卵': { category: '8品目', groups: [], related: ['マヨネーズ', 'スポンジ', 'メレンゲ'], level: '高' },
+      '乳': { category: '8品目', groups: [], related: ['バター', '生クリーム', 'チーズ'], level: '高' },
+      '小麦': { category: '8品目', groups: ['イネ科'], related: ['パン', 'スポンジ', 'クッキー'], level: '高' },
+      'えび': { category: '8品目', groups: ['甲殻類'], related: ['かに'], level: '高' },
+      'かに': { category: '8品目', groups: ['甲殻類'], related: ['えび'], level: '高' },
+      'そば': { category: '8品目', groups: ['タデ科'], related: [], level: '高' },
+      '落花生': { category: '8品目', groups: ['マメ科'], related: ['大豆', 'ナッツ'], level: '高' },
+      'くるみ': { category: '20品目', groups: ['ナッツ'], related: ['アーモンド', 'カシューナッツ'], level: '高' },
+      'アーモンド': { category: '20品目', groups: ['ナッツ'], related: ['くるみ', 'カシューナッツ'], level: '中' },
+      'カシューナッツ': { category: '20品目', groups: ['ナッツ'], related: ['アーモンド', 'くるみ'], level: '中' },
+      '大豆': { category: '20品目', groups: ['マメ科'], related: ['落花生'], level: '中' },
+      'ごま': { category: '20品目', groups: [], related: [], level: '中' },
+      'ゼラチン': { category: '20品目', groups: ['動物性'], related: [], level: '中' },
+      'りんご': { category: '20品目', groups: ['バラ科'], related: ['桃', 'なし', 'いちご'], level: '低' },
+      '桃': { category: '20品目', groups: ['バラ科'], related: ['りんご', 'なし', 'びわ', 'さくらんぼ'], level: '中' },
+      'なし': { category: '20品目', groups: ['バラ科'], related: ['りんご', '桃'], level: '低' },
+      'いちご': { category: '20品目', groups: ['バラ科'], related: ['桃', 'りんご'], level: '低' },
+      'びわ': { category: '20品目', groups: ['バラ科'], related: ['桃'], level: '低' },
+      'あんず': { category: '20品目', groups: ['バラ科'], related: ['桃'], level: '低' },
+      'さくらんぼ': { category: '20品目', groups: ['バラ科'], related: ['桃'], level: '低' },
+      'キウイ': { category: '20品目', groups: [], related: ['ラテックス'], level: '中' },
+      'バナナ': { category: '20品目', groups: ['バショウ科'], related: [], level: '低' },
+      'ナッツ': { category: '任意', groups: ['ナッツ'], related: ['くるみ', 'アーモンド', 'カシューナッツ'], level: '高' }
+    };
+    const RECIPE_MASTER = {
+      'いちごショート': ['卵', '乳', '小麦', 'いちご'],
+      'ガトーショコラ': ['卵', '乳'],
+      'チーズケーキ': ['卵', '乳'],
+      'マカロン': ['卵', 'アーモンド'],
+      'フルーツ盛り': ['りんご', 'いちご', 'キウイ'],
+      '桃のヴェリーヌ': ['乳', 'ゼラチン', '桃']
+    };
+
+    let selectedCategory = '宴会';
+    let activeFilter = '全件';
+    let editingId = null;
+    const fromDate = document.getElementById('fromDate');
+
+    const toDate = document.getElementById('toDate');
+
+    const els = {
+      categoryGrid: document.getElementById('categoryGrid'), orderDate: document.getElementById('orderDate'), orderTime: document.getElementById('orderTime'), clientName: document.getElementById('clientName'), venue: document.getElementById('venue'), guestCount: document.getElementById('guestCount'), coursePrice: document.getElementById('coursePrice'), status: document.getElementById('status'), orderNotes: document.getElementById('orderNotes'), afternoonTeaType: document.getElementById('afternoonTeaType'), guestCountWrap: document.getElementById('guestCountWrap'), coursePriceWrap: document.getElementById('coursePriceWrap'), afternoonTeaWrap: document.getElementById('afternoonTeaWrap'), nameLabel: document.getElementById('nameLabel'), addMasterAllergyBtn: document.getElementById('addMasterAllergyBtn'), masterAllergyArea: document.getElementById('masterAllergyArea'), itemsArea: document.getElementById('itemsArea'), addItemBtn: document.getElementById('addItemBtn'), addDessertBtn: document.getElementById('addDessertBtn'), addCakeBtn: document.getElementById('addCakeBtn'), addGiftBtn: document.getElementById('addGiftBtn'), orderForm: document.getElementById('orderForm'), submitBtn: document.getElementById('submitBtn'), stats: document.getElementById('stats'), filterPills: document.getElementById('filterPills'), searchInput: document.getElementById('searchInput'), sortSelect: document.getElementById('sortSelect'), ordersList: document.getElementById('ordersList'), importJsonInput: document.getElementById('importJsonInput'), importJsonBtn: document.getElementById('importJsonBtn'), exportBtn: document.getElementById('exportBtn'), printCardsBtn: document.getElementById('printCardsBtn'), taskModalBtn: document.getElementById('taskModalBtn'), monthlyReportBtn: document.getElementById('monthlyReportBtn'), resetFormBtn: document.getElementById('resetFormBtn'), clearAllBtn: document.getElementById('clearAllBtn'), itemTemplate: document.getElementById('itemTemplate'), allergyPersonTemplate: document.getElementById('allergyPersonTemplate'), savedVenueList: document.getElementById('savedVenueList'), printModal: document.getElementById('printModal'), printCardsArea: document.getElementById('printCardsArea'), runPrintBtn: document.getElementById('runPrintBtn'), closePrintBtn: document.getElementById('closePrintBtn'), taskModal: document.getElementById('taskModal'), taskDateFilter: document.getElementById('taskDateFilter'), taskCategoryFilter: document.getElementById('taskCategoryFilter'), taskTypeFilter: document.getElementById('taskTypeFilter'), taskListArea: document.getElementById('taskListArea'), closeTaskBtn: document.getElementById('closeTaskBtn'), reportModal: document.getElementById('reportModal'), reportMonthInput: document.getElementById('reportMonthInput'), runReportBtn: document.getElementById('runReportBtn'), closeReportBtn: document.getElementById('closeReportBtn'), reportSummary: document.getElementById('reportSummary'),
+      allergyPersonTemplate:
+      document.getElementById('allergyPersonTemplate'),orderDetailPanel: document.getElementById('orderDetailPanel'),
+    };
+    const viewToggle = document.getElementById('viewToggle');
+    const formSection = document.querySelector('.layout > section:first-child');
+    const listSection = document.querySelector('.layout > section:last-child');
+    const clearDateFilterBtn = document.getElementById('clearDateFilter');
+    function todayStr(offset = 0) { const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + offset); return d.toISOString().slice(0, 10); }
+    function currentMonthStr() { const now = new Date(); return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`; }
+    function isThisWeek(dateStr) { if (!dateStr) return false; const today = new Date(); today.setHours(0, 0, 0, 0); const target = new Date(dateStr + 'T00:00:00'); const diff = (target - today) / 86400000; return diff >= 0 && diff <= 6; }
+    function escapeHtml(str = '') { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/'/g, '&#039;'); }
+    function migrateLegacyOrder(order) {
+      const people = [];
+
+      // 新形式
+      if (order.allergyMaster && Array.isArray(order.allergyMaster.people)) {
+        order.allergyMaster.people.forEach((p, idx) => {
+          people.push({
+            personName: p.personName || p.name || `${idx + 1}人目`,
+            primary: Array.isArray(p.primary) ? p.primary : [],
+            familyChecks: p.familyChecks || {},
+            finalNg: p.finalNg || '',
+            method: p.method || '',
+            count: Number(p.count || 1),
+            note: p.note || '',
+            sourceItem: p.sourceItem || ''
+          });
+        });
+      }
+
+      // 旧形式A: order直下に allergyPeople
+      if (Array.isArray(order.allergyPeople)) {
+        order.allergyPeople.forEach((p, idx) => {
+          people.push({
+            personName: p.personName || p.name || `${idx + 1}人目`,
+            primary: Array.isArray(p.primary) ? p.primary : [],
+            familyChecks: p.familyChecks || {},
+            finalNg: p.finalNg || '',
+            method: p.method || '',
+            count: Number(p.count || 1),
+            note: p.note || '',
+            sourceItem: ''
+          });
+        });
+      }
+      // 旧形式B: itemごとに allergyPeople
+      (order.items || []).forEach((item) => {
+        (item.allergyPeople || []).forEach((p, idx) => {
+          people.push({
+            personName: p.personName || p.name || `${idx + 1}人目`,
+            primary: Array.isArray(p.primary) ? p.primary : [],
+            familyChecks: p.familyChecks || {},
+            finalNg: p.finalNg || '',
+            method: p.method || '',
+            count: Number(p.count || 1),
+            note: p.note || '',
+            sourceItem: item.name || item.type || ''
+          });
+        });
+      });
+
+      return {
+        ...order,
+        allergyMaster: {
+          people
+        }
+      };
+    }
+    function normalizeImportedItem(item = {}) {
+      return {
+        type: item.type || 'その他',
+        name: item.name || '',
+        quantity: Number(item.quantity || 1),
+        cost: Number(item.cost || 0),
+        size: item.size || '',
+        squareSize: item.squareSize || '',
+        multiSize: item.multiSize || '',
+        plateMessage: item.plateMessage || '',
+        dessertCostNote: item.dessertCostNote || '',
+        options: Array.isArray(item.options) ? item.options : [],
+        notes: item.notes || '',
+        allergyPeople: Array.isArray(item.allergyPeople) ? item.allergyPeople : []
+      };
+    }
+    function normalizeImportedOrder(order = {}) {
+      const rawItems = Array.isArray(order.items) ? order.items.map(normalizeImportedItem) : [];
+
+      const migrated = migrateLegacyOrder({
+        ...order,
+        items: rawItems,
+        allergyMaster: order.allergyMaster || null
+      });
+
+      return {
+        id: migrated.id || `${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        createdAt: Number(migrated.createdAt || Date.now()),
+        category: categories.includes(migrated.category) ? migrated.category : '宴会',
+        date: migrated.date || '',
+        time: migrated.time || '',
+        clientName: migrated.clientName || '',
+        venue: migrated.venue || '',
+        guestCount: Number(migrated.guestCount || 0),
+        coursePrice: Number(migrated.coursePrice || 0),
+        status: statusFlow.includes(migrated.status) ? migrated.status : '未確認',
+        afternoonTeaType: migrated.afternoonTeaType || '',
+        orderNotes: migrated.orderNotes || '',
+        allergyMaster: migrated.allergyMaster || { people: [] },
+        items: rawItems.map(item => {
+          const { allergyPeople, ...rest } = item;
+          return rest;
+        })
+      };
+    }
+
+    function loadOrders() {
+      const candidateKeys = [
+        'banquet_reservation_v7',
+        'banquet_reservation_v6',
+        'banquet_reservation_v5',
+        'banquet_reservation_v4'
+      ];
+
+      for (const key of candidateKeys) {
+        try {
+          const raw = JSON.parse(localStorage.getItem(key) || '[]');
+
+          if (Array.isArray(raw) && raw.length) {
+            const normalized = raw.map(normalizeImportedOrder);
+
+            if (key !== STORAGE_KEY) {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+            }
+
+            return normalized;
+          }
+        } catch (e) {
+          console.error(`load failed: ${key}`, e);
+        }
+      }
+
+      return [];
+    }
+    function saveOrders(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
+    function loadTaskChecks() { try { return JSON.parse(localStorage.getItem(TASK_CHECK_KEY)) || {}; } catch { return {}; } }
+    function saveTaskChecks(data) { localStorage.setItem(TASK_CHECK_KEY, JSON.stringify(data)); }
+    function loadSavedVenues() { try { return JSON.parse(localStorage.getItem(VENUE_MEMORY_KEY)) || []; } catch { return []; } }
+    function renderSavedVenues() { const venues = loadSavedVenues(); els.savedVenueList.innerHTML = venues.map(v => `<option value="${escapeHtml(v)}"></option>`).join(''); }
+    function rebuildVenueMemoryFromOrders(orders) { const venueSet = new Set(loadSavedVenues()); (orders || []).forEach(order => { const v = (order.venue || '').trim(); if (v) venueSet.add(v); }); localStorage.setItem(VENUE_MEMORY_KEY, JSON.stringify([...venueSet].sort((a, b) => a.localeCompare(b, 'ja')))); renderSavedVenues(); }
+    function saveVenueMemory(venue) { const v = (venue || '').trim(); if (!v) return; const list = loadSavedVenues(); if (!list.includes(v)) { list.push(v); list.sort((a, b) => a.localeCompare(b, 'ja')); localStorage.setItem(VENUE_MEMORY_KEY, JSON.stringify(list)); } renderSavedVenues(); }
+
+    function getGroupByFood(food) { return ALLERGY_MASTER[food]?.groups?.[0] || null; }
+    function getRelatedGroupsFromPrimary(primary = []) { return [...new Set(primary.flatMap(name => ALLERGY_MASTER[name]?.groups || []))]; }
+    function getRelevantFamilyFoods(primary = []) {
+      if (!Array.isArray(primary) || !primary.length) return [];
+
+      const groups = getRelatedGroupsFromPrimary(primary);
+      return roseFamily.filter(food => groups.includes(getGroupByFood(food)));
+    }
+    function checkRecipeAgainstPerson(itemName, person) {
+      const ingredients = RECIPE_MASTER[itemName] || [];
+      const primary = person.primary || [];
+      const direct = [];
+      const group = [];
+      ingredients.forEach(ing => {
+        if (primary.includes(ing)) direct.push(ing);
+        const ingGroup = getGroupByFood(ing);
+        primary.forEach(p => {
+          const pGroup = getGroupByFood(p);
+          if (ingGroup && pGroup && ingGroup === pGroup && ing !== p) group.push(ing);
+        });
+      });
+      return { direct: [...new Set(direct)], group: [...new Set(group)] };
+    }
+
+    function renderCategories() {
+      els.categoryGrid.innerHTML = categories.map(cat => `<button type="button" class="${selectedCategory === cat ? 'btn-dark' : 'btn-light'}" data-category="${cat}">${cat}</button>`).join('');
+      [...els.categoryGrid.querySelectorAll('button')].forEach(btn => btn.addEventListener('click', () => { selectedCategory = btn.dataset.category; renderCategories(); applyCategoryUI(); syncCategoryButtons(); }));
+    }
+    function applyCategoryUI() {
+      els.guestCountWrap.classList.toggle('hidden', !(selectedCategory === '宴会' || selectedCategory === '婚礼' || selectedCategory === 'アフタヌーンティー'));
+      els.coursePriceWrap.classList.toggle('hidden', !(selectedCategory === '宴会' || selectedCategory === '婚礼'));
+      els.afternoonTeaWrap.classList.toggle('hidden', selectedCategory !== 'アフタヌーンティー');
+      if (selectedCategory === 'アフタヌーンティー' && !els.venue.value) els.venue.value = 'レストラン';
+      if (selectedCategory === '婚礼') els.nameLabel.textContent = '新郎新婦名 / 婚礼名';
+      else if (selectedCategory === 'アニバーサリー') els.nameLabel.textContent = '名前 / 予約名';
+      else if (selectedCategory === 'アフタヌーンティー') els.nameLabel.textContent = '予約名';
+      else els.nameLabel.textContent = '宴会名 / 名前';
+    }
+    function syncCategoryButtons() {
+      els.addDessertBtn.style.display = (selectedCategory === '宴会' || selectedCategory === '婚礼') ? '' : 'none';
+      els.addGiftBtn.style.display = selectedCategory === '婚礼' ? '' : 'none';
+      els.addCakeBtn.style.display = selectedCategory === 'アフタヌーンティー' ? 'none' : '';
+    }
+
+function addMasterAllergyPerson(data = null) {
+  const template = document.getElementById('allergyPersonTemplate');
+  if (!template) {
+    alert('allergyPersonTemplate がHTMLにありません');
+    return;
+  }
+
+  // 既存のアレルギーカードを閉じる
+  document
+    .querySelectorAll('#masterAllergyArea .allergy-person-card')
+    .forEach(card => card.classList.add('collapsed'));
+
+  const node = template.content.firstElementChild.cloneNode(true);
+
+  // 新規だけ開く
+  node.classList.remove('collapsed');
+
+  els.masterAllergyArea.prepend(node);
+  wireAllergyPerson(node, data);
+  renumberAllergyPeople();
+
+  node.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+    function renumberAllergyPeople() {
+      [...els.masterAllergyArea.querySelectorAll('.allergy-person-card')].forEach((node, idx) => {
+        node.querySelector('.person-no').textContent = `${idx + 1}人目`;
+        if (!node.querySelector('.allergy-person-name').value.trim()) node.querySelector('.allergy-person-name').placeholder = `${idx + 1}人目`;
+        [...node.querySelectorAll('.family-item')].forEach((familyItem, fIdx) => {
+          const groupName = `family-${idx}-${fIdx}`;
+          familyItem.querySelectorAll('input[type="radio"]').forEach(radio => { radio.name = groupName; });
+        });
+      });
+    }
+
+    function updateAllergySummary(node) {
+      const primary = [...node.querySelectorAll('.primary-allergen-check:checked')].map(el => el.value);
+      const foods = getRelevantFamilyFoods(primary);
+      node.querySelector('.allergy-summary').textContent = foods.length ? `同科確認対象: ${foods.join(' / ')}` : '同科確認対象なし';
+      [...node.querySelectorAll('.family-item')].forEach((familyItem, idx) => {
+        const food = roseFamily[idx];
+        familyItem.classList.toggle('hidden', !foods.includes(food));
+      });
+    }
+
+    function wireAllergyPerson(node, data = null) {
+              const head = node.querySelector('.allergy-person-head');
+
+head.style.cursor = 'pointer';
+
+head.addEventListener('click', () => {
+  node.classList.toggle('collapsed');
+});  
+const removeBtn = node.querySelector('.remove-allergy-person-btn');
+      removeBtn.addEventListener('click', () => { node.remove(); renumberAllergyPeople(); });
+      [...node.querySelectorAll('.primary-allergen-check')].forEach(check => check.addEventListener('change', () => updateAllergySummary(node)));
+
+      if (data) {
+        node.querySelector('.allergy-person-name').value = data.personName || '';
+        [...node.querySelectorAll('.primary-allergen-check')].forEach(check => { check.checked = (data.primary || []).includes(check.value); });
+        node.querySelector('.final-ng-input').value = data.finalNg || '';
+        node.querySelector('.allergy-method').value = data.method || '';
+        node.querySelector('.allergy-count').value = data.count || 1;
+        node.querySelector('.allergy-note').value = data.note || '';
+        roseFamily.forEach((name, idx) => {
+          const familyItem = node.querySelectorAll('.family-item')[idx];
+          if (!familyItem) return;
+          const status = data.familyChecks?.[name] || '未確認';
+          const target = [...familyItem.querySelectorAll('.family-status')].find(r => r.value === status);
+          if (target) target.checked = true;
+
+        });
+      }
+
+      if (!node.querySelector('.allergy-person-name').value.trim()) {
+        node.querySelector('.allergy-person-name').placeholder = '対象者名未入力';
+      }
+
+      updateAllergySummary(node);
+    }
+
+    function addItem(type = '') {
+      if (selectedCategory === 'アフタヌーンティー') type = 'アフタヌーンティー';
+      if (selectedCategory === 'アニバーサリー' && !type) type = 'アニバーサリーケーキ';
+      const node = els.itemTemplate.content.firstElementChild.cloneNode(true);
+      els.itemsArea.prepend(node);
+      wireItemCard(node, type);
+      renumberItems();
+    }
+
+    function wireItemCard(card, presetType = '') {
+      const itemType = card.querySelector('.item-type');
+      const cakeFields = card.querySelector('.cake-fields');
+      const optionFields = card.querySelector('.option-fields');
+      const dessertFields = card.querySelector('.dessert-fields');
+      const cakeSize = card.querySelector('.cake-size');
+      const squareWrap = card.querySelector('.square-size-wrap');
+      const removeBtn = card.querySelector('.remove-item-btn');
+      const itemName = card.querySelector('.item-name');
+      if (presetType) itemType.value = presetType;
+const itemHead = card.querySelector('.item-head');
+
+itemHead.addEventListener('click', (e) => {
+  if (e.target.closest('button')) return;
+  card.classList.toggle('collapsed');
+});
+      const updateItemUI = () => {
+        syncCategoryButtons();
+        const value = itemType.value;
+        const isCake = ['ホールケーキ', 'ウエディングケーキ', 'アニバーサリーケーキ'].includes(value);
+        const hasOptions = ['ホールケーキ', 'ウエディングケーキ', 'アニバーサリーケーキ', 'ギフト'].includes(value);
+        const isDessert = value === '皿盛りデザート';
+        cakeFields.classList.toggle('hidden', !isCake);
+        optionFields.classList.toggle('hidden', !hasOptions);
+        dessertFields.classList.toggle('hidden', !isDessert);
+        if (value === '皿盛りデザート' && !itemName.value) itemName.value = '皿盛りデザート';
+        if (value === 'ウエディングケーキ' && !itemName.value) itemName.value = 'ウエディングケーキ';
+        if (value === 'アニバーサリーケーキ' && !itemName.value) itemName.value = 'アニバーサリーケーキ';
+        if (value === 'ギフト' && !itemName.value) itemName.value = '引き菓子 / ギフト';
+        if (value === 'アフタヌーンティー' && !itemName.value) itemName.value = 'アフタヌーンティー';
+      };
+      const updateSquare = () => squareWrap.classList.toggle('hidden', cakeSize.value !== '四角');
+      itemType.addEventListener('change', updateItemUI);
+      cakeSize.addEventListener('change', updateSquare);
+      removeBtn.addEventListener('click', () => { card.remove(); renumberItems(); });
+      updateItemUI(); updateSquare();
+      if (selectedCategory === 'アフタヌーンティー') {
+        card.querySelector('.item-type').value = 'アフタヌーンティー';
+        card.querySelector('.item-type').closest('.field').classList.add('hidden');
+        card.querySelector('.item-cost').closest('.field').classList.add('hidden');
+        card.querySelector('.dessert-fields').classList.add('hidden');
+      }
+      if (selectedCategory === 'アニバーサリー') {
+        [...card.querySelector('.item-type').options].forEach(opt => { opt.hidden = ['皿盛りデザート', 'ウエディングケーキ', 'ギフト', 'アフタヌーンティー'].includes(opt.value); });
+        if (['皿盛りデザート', 'ウエディングケーキ', 'ギフト', 'アフタヌーンティー'].includes(card.querySelector('.item-type').value)) card.querySelector('.item-type').value = 'アニバーサリーケーキ';
+      }
+    }
+
+    function renumberItems() { [...els.itemsArea.querySelectorAll('.item-card')].forEach((card, index) => card.querySelector('.item-number').textContent = index + 1); }
+
+    function collectAllergyMaster() {
+      return {
+        people: [...els.masterAllergyArea.querySelectorAll('.allergy-person-card')].map(node => {
+          const primary = [...node.querySelectorAll('.primary-allergen-check:checked')].map(el => el.value);
+          const familyChecks = {};
+          roseFamily.forEach((name, idx) => {
+            const familyItem = node.querySelectorAll('.family-item')[idx];
+            if (!familyItem) return;
+            const checked = familyItem.querySelector('.family-status:checked');
+            familyChecks[name] = checked ? checked.value : '未確認';
+          });
+
+          return {
+            personName: node.querySelector('.allergy-person-name').value.trim(),
+            primary,
+            familyChecks,
+            finalNg: node.querySelector('.final-ng-input').value.trim(),
+            method: node.querySelector('.allergy-method').value,
+            count: Number(node.querySelector('.allergy-count').value || 1),
+            note: node.querySelector('.allergy-note').value.trim()
+          };
+        }).filter(person => {
+          const relatedFoods = getRelevantFamilyFoods(person.primary || []);
+          const hasRelevantFamilyInput = relatedFoods.some(food => {
+            const status = person.familyChecks?.[food];
+            return status && status !== '未確認';
+          });
+
+          return (
+            person.primary.length ||
+            person.finalNg ||
+            person.note ||
+            hasRelevantFamilyInput
+          );
+        })
+      };
+    }
+
+    function collectItems() {
+      return [...els.itemsArea.querySelectorAll('.item-card')].map(card => {
+        const options = [...card.querySelectorAll('.option-check:checked')].map(el => el.value);
+        const freeOption = card.querySelector('.option-free').value.trim();
+        if (freeOption) options.push(freeOption);
+        return {
+          type: card.querySelector('.item-type').value,
+          name: card.querySelector('.item-name').value.trim(),
+          quantity: Number(card.querySelector('.item-quantity').value || 1),
+          cost: Number(card.querySelector('.item-cost').value || 0),
+          size: card.querySelector('.cake-size').value,
+          squareSize: card.querySelector('.square-size').value.trim(),
+          multiSize: card.querySelector('.multi-size').value.trim(),
+          plateMessage: card.querySelector('.plate-message').value.trim(),
+          dessertCostNote: card.querySelector('.dessert-cost-note').value.trim(),
+          options,
+          notes: card.querySelector('.item-notes').value.trim()
+        };
+      }).filter(item => item.name || item.type);
+    }
+
+    function getOrderData() {
+      return {
+        category: selectedCategory,
+        date: els.orderDate.value,
+        time: els.orderTime.value,
+        clientName: els.clientName.value.trim(),
+        venue: els.venue.value.trim(),
+        guestCount: Number(els.guestCount.value || 0),
+        coursePrice: Number(els.coursePrice.value || 0),
+        status: els.status.value,
+        afternoonTeaType: els.afternoonTeaType.value,
+        orderNotes: els.orderNotes.value.trim(),
+        allergyMaster: collectAllergyMaster(),
+        items: collectItems()
+      };
+    }
+
+    function validateOrder(data) {
+      if (!data.date) return '日付を入力してください。';
+      if (!data.clientName) return '名前または宴会名を入力してください。';
+      if (!data.items.length) return '商品を1つ以上追加してください。';
+      if (data.items.some(item => !item.name)) return '商品名が空の商品があります。';
+      return '';
+    }
+
+    function resetForm(keep = null) {
+      editingId = null;
+      els.submitBtn.textContent = '登録する';
+      els.orderForm.reset();
+      els.itemsArea.innerHTML = '';
+      els.masterAllergyArea.innerHTML = '';
+      selectedCategory = keep?.category || '宴会';
+      renderCategories(); applyCategoryUI(); syncCategoryButtons();
+      els.orderDate.value = keep?.date || todayStr(0);
+      els.orderTime.value = keep?.time || '';
+      els.clientName.value = keep?.clientName || '';
+      els.venue.value = keep?.venue || '';
+      els.guestCount.value = keep?.guestCount || '';
+      els.coursePrice.value = keep?.coursePrice || '';
+      els.status.value = keep?.status || '未確認';
+      els.orderNotes.value = '';
+      els.afternoonTeaType.value = keep?.afternoonTeaType || '';
+      addMasterAllergyPerson();
+      if (selectedCategory === 'アニバーサリー') addItem('アニバーサリーケーキ');
+      else if (selectedCategory === 'アフタヌーンティー') addItem('アフタヌーンティー');
+      else addItem('皿盛りデザート');
+    }
+
+    function handleSubmit(event) {
+      event.preventDefault();
+      const data = getOrderData();
+      const error = validateOrder(data);
+      if (error) return window.alert(error);
+      const orders = loadOrders();
+      if (editingId) {
+        const index = orders.findIndex(order => order.id === editingId);
+        if (index !== -1) orders[index] = { ...orders[index], ...data };
+      } else {
+        orders.push({ id: `${Date.now()}-${Math.floor(Math.random() * 1000)}`, createdAt: Date.now(), ...data });
+      }
+      saveOrders(orders);
+      saveVenueMemory(data.venue);
+      resetForm({ category: selectedCategory, date: data.date, time: data.time, clientName: data.clientName, venue: data.venue, guestCount: data.guestCount, coursePrice: data.coursePrice, status: data.status, afternoonTeaType: data.afternoonTeaType });
+      renderOrders();
+      window.alert(editingId ? '更新しました。' : '登録しました。');
+    }
+
+    function renderFilterPills() {
+      els.filterPills.innerHTML = filters.map(filter => `<button type="button" class="pill ${filter === activeFilter ? 'active' : ''}" data-filter="${filter}">${filter}</button>`).join('');
+      [...els.filterPills.querySelectorAll('button')].forEach(btn => btn.addEventListener('click', () => { activeFilter = btn.dataset.filter; renderFilterPills(); renderOrders(); }));
+    }
+    function isInRange(date) {
+      if (!date) return false;
+
+      const d = new Date(date);
+
+      if (fromDate.value && d < new Date(fromDate.value)) return false;
+      if (toDate.value && d > new Date(toDate.value)) return false;
+
+      return true;
+    }
+
+    function filteredOrders() {
+      const q = els.searchInput.value.trim().toLowerCase();
+      const sort = els.sortSelect.value;
+
+      let orders = loadOrders().filter(order => {
+        const hasTask =
+          ['未確認', '製造待ち'].includes(order.status) ||
+          (order.allergyMaster?.people || []).some(p => {
+            const foods = getRelevantFamilyFoods(p.primary || []);
+            return foods.some(f => (p.familyChecks?.[f] || '未確認') === '未確認');
+          });
+
+        const matchFilter =
+          activeFilter === '全件' ? true :
+            activeFilter === '今日' ? order.date === todayStr(0) :
+              activeFilter === '明日' ? order.date === todayStr(1) :
+                activeFilter === '今週' ? isThisWeek(order.date) :
+                  activeFilter === '未完了' ? order.status !== '納品済み' :
+                    activeFilter === '納品済み' ? order.status === '納品済み' :
+                      activeFilter === 'タスクあり' ? hasTask :
+                        order.category === activeFilter;
+
+        const matchDateRange = isInRange(order.date);
+
+        const allergyText = (order.allergyMaster?.people || [])
+          .map(p => [p.personName, p.primary?.join(' '), p.finalNg, p.note].join(' '))
+          .join(' ');
+
+        const itemText = (order.items || [])
+          .map(item => [item.type, item.name, item.notes, item.options?.join(' ')].join(' '))
+          .join(' ');
+
+        const haystack = [order.clientName, order.venue, order.orderNotes, itemText, allergyText].join(' ').toLowerCase();
+
+        return matchFilter && matchDateRange && (!q || haystack.includes(q));
+      });
+
+      orders.sort((a, b) =>
+        sort === 'dateAsc'
+          ? `${a.date}${a.time || ''}`.localeCompare(`${b.date}${b.time || ''}`)
+          : sort === 'dateDesc'
+            ? `${b.date}${b.time || ''}`.localeCompare(`${a.date}${a.time || ''}`)
+            : b.createdAt - a.createdAt
+      );
+
+      return orders;
+    }
+    function renderStats() {
+      const orders = loadOrders();
+      const today = orders.filter(o => o.date === todayStr(0));
+      const unfinished = today.filter(o => o.status !== '納品済み');
+
+      const allergyCount = today.reduce((sum, o) => {
+        return sum + (o.allergyMaster?.people?.length || 0);
+      }, 0);
+
+      document.getElementById('todaySummary').innerHTML =
+        `本日予約 ${today.length}件　未完了 ${unfinished.length}件　アレルギー ${allergyCount}名`;
+    }
+
+    function orderTotalCost(order) { return (order.items || []).reduce((sum, item) => sum + (Number(item.cost) || 0), 0); }
+function showOrderDetail(order) {
+  els.orderDetailPanel.classList.remove('hidden');
+
+  els.orderDetailPanel.innerHTML = `
+    <div class="order-detail-title">
+      ${escapeHtml(order.clientName)}
+    </div>
+
+    <div class="meta">
+      ${escapeHtml(order.category)}
+      /
+      ${escapeHtml(order.date)}
+      ${escapeHtml(order.time || '')}
+    </div>
+
+    <div class="meta" style="margin-top:8px;">
+      会場：${escapeHtml(order.venue || '')}
+    </div>
+
+    <div class="meta">
+      ステータス：${escapeHtml(order.status)}
+    </div>
+
+    <div class="order-detail-actions">
+      <button class="btn-dark" id="detailEditBtn">
+        編集
+      </button>
+    </div>
+  `;
+
+  document
+    .getElementById('detailEditBtn')
+    .addEventListener('click', () => {
+      editOrder(order.id);
+    });
+}
+function renderOrders() {
+  const all = loadOrders();
+  const orders = filteredOrders();
+
+  renderStats(all);
+
+  if (!orders.length) {
+    els.ordersList.innerHTML = '<div class="empty">該当する注文がありません。</div>';
+    return;
+  }
+
+  els.ordersList.innerHTML = `
+    <div class="order-table-wrap">
+      <table class="order-table">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>区分</th>
+            <th>名前</th>
+            <th>会場</th>
+            <th>商品</th>
+            <th>状態</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${orders.map(order => `
+            <tr data-order-id="${order.id}">
+              <td>${escapeHtml(order.date || '')}</td>
+              <td>${escapeHtml(order.category || '')}</td>
+              <td>${escapeHtml(order.clientName || '')}</td>
+              <td>${escapeHtml(order.venue || '')}</td>
+              <td>${escapeHtml((order.items || []).map(i => i.name || i.type).join(' / '))}</td>
+              <td>${escapeHtml(order.status || '')}</td>
+              <td>
+                <button class="btn-light" data-edit="${order.id}">編集</button>
+                <button class="btn-warning" data-next="${order.id}">進める</button>
+                <button class="btn-danger" data-delete="${order.id}">削除</button>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  [...els.ordersList.querySelectorAll('[data-delete]')].forEach(btn =>
+    btn.addEventListener('click', () => deleteOrder(btn.dataset.delete))
+  );
+
+  [...els.ordersList.querySelectorAll('[data-edit]')].forEach(btn =>
+    btn.addEventListener('click', () => editOrder(btn.dataset.edit))
+  );
+
+  [...els.ordersList.querySelectorAll('[data-next]')].forEach(btn =>
+    btn.addEventListener('click', () => advanceStatus(btn.dataset.next))
+  );
+  [...els.ordersList.querySelectorAll('tbody tr')].forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('button')) return;
+
+      const id = row.dataset.orderId;
+      const order = loadOrders().find(o => o.id === id);
+      if (!order) return;
+
+      showOrderDetail(order);
+    });
+  });
+}
+
+    function deleteOrder(id) {
+      if (!window.confirm('この注文を削除しますか？')) return;
+      saveOrders(loadOrders().filter(order => order.id !== id));
+      renderOrders();
+    }
+
+    function advanceStatus(id) {
+      const orders = loadOrders(); const index = orders.findIndex(order => order.id === id); if (index === -1) return;
+      const now = statusFlow.indexOf(orders[index].status); orders[index].status = statusFlow[Math.min(now + 1, statusFlow.length - 1)] || '未確認'; saveOrders(orders); renderOrders();
+    }
+
+    function editOrder(id) {
+      const order = loadOrders().find(row => row.id === id); if (!order) return;
+      editingId = id; selectedCategory = order.category; renderCategories(); applyCategoryUI(); syncCategoryButtons();
+      els.submitBtn.textContent = '更新する';
+      els.orderDate.value = order.date || ''; els.orderTime.value = order.time || ''; els.clientName.value = order.clientName || ''; els.venue.value = order.venue || ''; els.guestCount.value = order.guestCount || ''; els.coursePrice.value = order.coursePrice || ''; els.status.value = order.status || '未確認'; els.afternoonTeaType.value = order.afternoonTeaType || ''; els.orderNotes.value = order.orderNotes || '';
+      els.itemsArea.innerHTML = ''; els.masterAllergyArea.innerHTML = '';
+      (order.allergyMaster?.people || []).forEach(person => addMasterAllergyPerson(person));
+      if (!(order.allergyMaster?.people || []).length) addMasterAllergyPerson();
+      (order.items || []).forEach(item => {
+        addItem(item.type || 'その他');
+        const card = els.itemsArea.lastElementChild;
+        card.querySelector('.item-type').value = item.type || 'その他';
+        card.querySelector('.item-name').value = item.name || '';
+        card.querySelector('.item-quantity').value = item.quantity || 1;
+        card.querySelector('.item-cost').value = item.cost || '';
+        card.querySelector('.cake-size').value = item.size || '';
+        card.querySelector('.square-size').value = item.squareSize || '';
+        card.querySelector('.multi-size').value = item.multiSize || '';
+        card.querySelector('.plate-message').value = item.plateMessage || '';
+        card.querySelector('.dessert-cost-note').value = item.dessertCostNote || '';
+        card.querySelector('.item-notes').value = item.notes || '';
+        [...card.querySelectorAll('.option-check')].forEach(check => { check.checked = (item.options || []).includes(check.value); });
+        const freeOptions = (item.options || []).filter(opt => !presetOptions.includes(opt));
+        card.querySelector('.option-free').value = freeOptions.join(' / ');
+        card.querySelector('.item-type').dispatchEvent(new Event('change'));
+        card.querySelector('.cake-size').dispatchEvent(new Event('change'));
+      });
+      closePrintCards(); closeMonthlyReport(); closeTaskModal(); window.scrollTo({ top: 0, behavior: 'smooth' });
+      viewToggle
+        .querySelector('[data-view="form"]')
+        .click();
+    }
+    function shortCategory(category) {
+      if (category === '婚礼') return 'BR';
+      if (category === 'アニバーサリー') return 'AVS';
+      if (category === '宴会') return 'BQ';
+      if (category === 'アフタヌーンティー') return 'AT';
+      return category || '';
+    }
+
+    function formatShortDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr + 'T00:00:00');
+      const m = d.getMonth() + 1;
+      const day = d.getDate();
+      const week = ['日', '月', '火', '水', '木', '金', '土'][d.getDay()];
+      return `${m}/${day}(${week})`;
+    }
+    function buildPrintCards() {
+      const cards = [];
+
+      loadOrders().forEach(order => {
+        (order.allergyMaster?.people || []).forEach((person, idx) => {
+          const ngFamily = roseFamily.filter(name => person.familyChecks?.[name] === 'NG');
+          const relevantFoods = getRelevantFamilyFoods(person.primary || []);
+          const checkedFamilies = relevantFoods.filter(name => {
+            const status = person.familyChecks?.[name];
+            return status === '可' || status === 'NG';
+          });
+
+          const rawName = (person.personName || '').trim();
+          const isAutoName = /^\d+人目$/.test(rawName);
+          const displayName = rawName && !isAutoName ? rawName : (order.clientName || '名前未入力');
+
+          cards.push({
+            badge: `${idx + 1}人目`,
+            guestName: displayName,
+            categoryShort: shortCategory(order.category),
+            dateVenue: `${formatShortDate(order.date)} / ${order.venue || ''}`,
+            primary: (person.primary || []).join(' / '),
+            familyChecked: relevantFoods.length > 0 && checkedFamilies.length === relevantFoods.length,
+            familyNg: ngFamily.join(' / '),
+            finalNg: person.finalNg || '',
+            method: person.method || '',
+            note: person.note || ''
+          });
+        });
+      });
+
+      return cards;
+    }
+    function openPrintCards() {
+      const cards = buildPrintCards();
+      if (!cards.length) return window.alert('アレルギー情報が入った対象者がありません。');
+
+      els.printCardsArea.innerHTML = cards.map(card => {
+        const lines = [];
+
+        if (card.primary) {
+          lines.push(`<div class="compact-line"><strong>主</strong> ${escapeHtml(card.primary)}</div>`);
+        }
+
+        if (card.familyChecked) {
+          if (card.familyNg) {
+            lines.push(`<div class="compact-line"><strong>同科</strong> 確認済み / NG ${escapeHtml(card.familyNg)}</div>`);
+          } else {
+            lines.push(`<div class="compact-line"><strong>同科</strong> 確認済み</div>`);
+          }
+        }
+
+        if (card.finalNg) {
+          lines.push(`<div class="compact-line"><strong>最終</strong> ${escapeHtml(card.finalNg)}</div>`);
+        }
+
+        if (card.method) {
+          lines.push(`<div class="compact-line"><strong>対応</strong> ${escapeHtml(card.method)}</div>`);
+        }
+
+        if (card.note) {
+          lines.push(`<div class="compact-line"><strong>メモ</strong> ${escapeHtml(card.note)}</div>`);
+        }
+
+        if (!lines.length) {
+          lines.push(`<div class="compact-line compact-empty">特記事項なし</div>`);
+        }
+
+        return `
+      <article class="allergy-card compact">
+        <div class="allergy-head compact-head">
+          <div class="compact-main">
+            <div class="allergy-title compact-title">${escapeHtml(card.guestName)} / ${escapeHtml(card.categoryShort)}</div>
+            <div class="allergy-sub compact-sub">${escapeHtml(card.dateVenue)}</div>
+          </div>
+          <div class="person-badge">${escapeHtml(card.badge)}</div>
+        </div>
+        ${lines.join('')}
+      </article>
+    `;
+      }).join('');
+
+      els.printModal.classList.remove('hidden');
+    }
+    function closePrintCards() { els.printModal.classList.add('hidden'); }
+
+    function buildTaskData() {
+      const checks = loadTaskChecks();
+      const dateFilter = els.taskDateFilter.value || 'all';
+      const categoryFilter = els.taskCategoryFilter.value || 'all';
+      const typeFilter = els.taskTypeFilter.value || 'all';
+      return loadOrders().filter(order => {
+        const hasUncheckedFamily = (order.allergyMaster?.people || []).some(person => {
+          const relatedFoods = getRelevantFamilyFoods(person.primary || []);
+          return relatedFoods.some(food => (person.familyChecks?.[food] || '未確認') === '未確認');
+        });
+        const hasTaskBase = ['未確認', '製造待ち'].includes(order.status) || hasUncheckedFamily;
+        if (!hasTaskBase) return false;
+        if (categoryFilter !== 'all' && order.category !== categoryFilter) return false;
+        if (dateFilter === 'today' && order.date !== todayStr(0)) return false;
+        if (dateFilter === 'tomorrow' && order.date !== todayStr(1)) return false;
+        if (dateFilter === 'thisWeek' && !isThisWeek(order.date)) return false;
+        return true;
+      }).map(order => {
+        const entries = [];
+        if (order.status === '未確認') {
+          const key = `${order.id}::confirm`;
+          entries.push({ key, label: '内容確認', detail: `${order.category} / ${order.clientName}`, checked: !!checks[key] });
+        }
+        if (order.status === '製造待ち') {
+          (order.items || []).forEach((item, index) => {
+            const key = `${order.id}::prep::${index}`;
+            entries.push({ key, label: '仕込み', detail: `${item.name || item.type} × ${item.quantity || 1}`, checked: !!checks[key] });
+          });
+        }
+        (order.allergyMaster?.people || []).forEach((person, personIndex) => {
+          const relatedFoods = getRelevantFamilyFoods(person.primary || []);
+          const uncheckedFamilies = relatedFoods.filter(food => (person.familyChecks?.[food] || '未確認') === '未確認');
+          if (!uncheckedFamilies.length) return;
+          const key = `${order.id}::family::${personIndex}`;
+          entries.push({ key, label: '同科確認', detail: `${person.personName || `${personIndex + 1}人目`} / ${uncheckedFamilies.join('・')}`, checked: !!checks[key] });
+        });
+        const filteredEntries = typeFilter === 'all' ? entries : entries.filter(entry => entry.label === typeFilter);
+        return { title: order.clientName, meta: `${order.category} / ${order.date || ''}${order.time ? ` ${order.time}` : ''} / ${order.venue || '場所未入力'}`, status: order.status, entries: filteredEntries };
+      }).filter(group => group.entries.length);
+    }
+
+    function renderTaskModal() {
+      const tasks = buildTaskData();
+      if (!tasks.length) { els.taskListArea.innerHTML = '<div class="empty">未確認・製造待ち・同科未確認のタスクはありません。</div>'; return; }
+      els.taskListArea.innerHTML = tasks.map(group => `
+        <article class="task-card">
+          <div class="task-head"><div><div class="task-title">${escapeHtml(group.title || '名称未入力')}</div><div class="meta">${escapeHtml(group.meta)}</div></div><div class="badge">${escapeHtml(group.status)}</div></div>
+          ${group.entries.map(entry => `
+            <label class="task-check ${entry.checked ? 'done' : ''}" data-task-wrap="${escapeHtml(entry.key)}">
+              <input type="checkbox" data-task-key="${escapeHtml(entry.key)}" ${entry.checked ? 'checked' : ''} />
+              <div><strong>${escapeHtml(entry.label)}</strong><br><span class="meta">${escapeHtml(entry.detail)}</span></div>
+            </label>
+          `).join('')}
+        </article>
+      `).join('');
+      [...els.taskListArea.querySelectorAll('[data-task-key]')].forEach(input => input.addEventListener('change', () => {
+        const checks = loadTaskChecks(); checks[input.dataset.taskKey] = input.checked; saveTaskChecks(checks); input.closest('[data-task-wrap]')?.classList.toggle('done', input.checked);
+      }));
+    }
+    function openTaskModal() { renderTaskModal(); els.taskModal.classList.remove('hidden'); }
+    function closeTaskModal() { els.taskModal.classList.add('hidden'); }
+    function buildMonthlyReport(monthStr) {
+      const [year, month] = monthStr.split('-').map(Number);
+
+      const orders = loadOrders().filter(order => {
+        if (order.status !== '納品済み') return false;
+        if (!order.date) return false;
+
+        const d = new Date(order.date + 'T00:00:00');
+        return d.getFullYear() === year && d.getMonth() + 1 === month;
+      });
+
+      const result = {
+        orderCount: orders.length,
+        totalCost: 0,
+        categoryCount: {},
+        sizeCount: {},
+        itemTypeCount: {},
+        optionCount: {},
+        customerCount: {}
+      };
+
+      orders.forEach(order => {
+        result.categoryCount[order.category] = (result.categoryCount[order.category] || 0) + 1;
+        result.customerCount[order.clientName || '名前未入力'] = (result.customerCount[order.clientName || '名前未入力'] || 0) + 1;
+
+        (order.items || []).forEach(item => {
+          const qty = Number(item.quantity || 0);
+          const cost = Number(item.cost || 0);
+
+          result.totalCost += cost * qty;
+          result.itemTypeCount[item.type || '未分類'] = (result.itemTypeCount[item.type || '未分類'] || 0) + qty;
+
+          const sizeText = item.multiSize || item.size || '';
+
+          if (sizeText) {
+            sizeText
+              .split(/[＋+\s、,／/]+/)
+              .map(s => s.trim())
+              .filter(Boolean)
+              .forEach(size => {
+                result.sizeCount[size] = (result.sizeCount[size] || 0) + qty;
+              });
+          }
+
+          (item.options || []).forEach(opt => {
+            result.optionCount[opt] = (result.optionCount[opt] || 0) + 1;
+          });
+        });
+      });
+
+      return result;
+    }
+    function mapToRows(mapObj, suffix = '') {
+      const entries = Object.entries(mapObj).sort((a, b) => b[1] - a[1]);
+      if (!entries.length) return '<div class="empty">該当データなし</div>';
+      return `<div class="report-list">${entries.map(([k, v]) => `<div class="report-card"><div class="report-row"><span>${escapeHtml(k)}</span><strong>${Number(v).toLocaleString()}${suffix}</strong></div></div>`).join('')}</div>`;
+    }
+    function runMonthlyReport() {
+      const monthStr = els.reportMonthInput.value || currentMonthStr(); const report = buildMonthlyReport(monthStr); const [year, month] = monthStr.split('-');
+      els.reportSummary.innerHTML = `
+        <div class="badge-row" style="margin-bottom:14px;">
+          <span class="badge">${year}年${Number(month)}月</span>
+          <span class="badge">納品済み予約 ${report.orderCount}件</span>
+          <span class="badge">原価合計 ${report.totalCost.toLocaleString()}円</span>
+        </div>
+        <div class="grid-2">
+          <div class="report-card"><div class="report-title">カテゴリ別</div>${mapToRows(report.categoryCount, '件')}</div>
+          <div class="report-card"><div class="report-title">商品区分別数量</div>${mapToRows(report.itemTypeCount, '点')}</div>
+          <div class="report-card"><div class="report-title">サイズ別数量</div>${mapToRows(report.sizeCount, '台')}</div>
+          <div class="report-card"><div class="report-title">オプション使用回数</div>${mapToRows(report.optionCount, '回')}</div>
+          <div class="report-card" style="grid-column:1 / -1;"><div class="report-title">顧客別件数</div>${mapToRows(report.customerCount, '件')}</div>
+        </div>`;
+    }
+    function openMonthlyReport() {
+      els.reportMonthInput.value = currentMonthStr();
+      runMonthlyReport();
+      els.reportModal.classList.remove('hidden');
+    }
+    function closeMonthlyReport() { els.reportModal.classList.add('hidden'); }
+
+    async function handleJsonImport(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function (e) {
+        try {
+          const parsed = JSON.parse(e.target.result);
+          if (!Array.isArray(parsed)) {
+            return window.alert('JSONの形式が正しくありません。配列データを読み込んでください。');
+          }
+
+          const normalized = parsed.map(normalizeImportedOrder);
+          const shouldAppend = window.confirm('OKで追加読み込み、キャンセルで上書き読み込みします。');
+          const existing = loadOrders();
+          let finalOrders;
+
+          if (shouldAppend) {
+            const merged = [...existing];
+
+            normalized.forEach(newOrder => {
+              if (!existing.some(o => o.id === newOrder.id)) {
+                merged.push(newOrder);
+              }
+            });
+
+            finalOrders = merged;
+          } else {
+            finalOrders = normalized;
+          }
+
+          saveOrders(finalOrders);
+          rebuildVenueMemoryFromOrders(finalOrders);
+          renderOrders();
+          resetForm();
+
+          window.alert(`JSONを${shouldAppend ? '追加' : '上書き'}反映しました。`);
+        } catch (error) {
+          console.error(error);
+          window.alert('JSONの読み込みに失敗しました。');
+        } finally {
+          event.target.value = '';
+        }
+      };
+
+      reader.onerror = function () {
+        window.alert('ファイルの読み込みに失敗しました。');
+        event.target.value = '';
+      };
+
+      reader.readAsText(file, 'utf-8');
+    }
+
+    function exportJson() {
+      const data = JSON.stringify(loadOrders(), null, 2); const blob = new Blob([data], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `orders-v7-${todayStr(0)}.json`; a.click(); URL.revokeObjectURL(url);
+    }
+    function clearAll() {
+      if (!window.confirm('全件削除します。元に戻せません。')) return;
+
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(TASK_CHECK_KEY);
+
+      resetForm();
+      renderOrders();
+    }
+
+    viewToggle.addEventListener('click', (e) => {
+      if (!e.target.dataset.view) return;
+
+      document.querySelectorAll('#viewToggle .pill').forEach(p => p.classList.remove('active'));
+      e.target.classList.add('active');
+
+      if (e.target.dataset.view === 'form') {
+        formSection.classList.remove('view-hidden');
+        listSection.classList.add('view-hidden');
+      } else {
+        formSection.classList.add('view-hidden');
+        listSection.classList.remove('view-hidden');
+      }
+    });
+
+    fromDate.addEventListener('change', renderOrders);
+    toDate.addEventListener('change', renderOrders);
+
+    clearDateFilterBtn.addEventListener('click', () => {
+      fromDate.value = '';
+      toDate.value = '';
+      renderOrders();
+    });
+    els.addMasterAllergyBtn.addEventListener('click', () => addMasterAllergyPerson());
+    els.addItemBtn.addEventListener('click', () => addItem('その他'));
+    els.addDessertBtn.addEventListener('click', () => addItem('皿盛りデザート'));
+    els.addCakeBtn.addEventListener('click', () => addItem(selectedCategory === '婚礼' ? 'ウエディングケーキ' : selectedCategory === 'アニバーサリー' ? 'アニバーサリーケーキ' : 'ホールケーキ'));
+    els.addGiftBtn.addEventListener('click', () => addItem('ギフト'));
+    els.orderForm.addEventListener('submit', handleSubmit);
+    els.searchInput.addEventListener('input', renderOrders);
+    els.sortSelect.addEventListener('change', renderOrders);
+    els.importJsonBtn.addEventListener('click', () => els.importJsonInput.click());
+    els.importJsonInput.addEventListener('change', handleJsonImport);
+    els.exportBtn.addEventListener('click', exportJson);
+    els.printCardsBtn.addEventListener('click', openPrintCards);
+    els.taskModalBtn.addEventListener('click', openTaskModal);
+    els.taskDateFilter.addEventListener('change', renderTaskModal);
+    els.taskCategoryFilter.addEventListener('change', renderTaskModal);
+    els.taskTypeFilter.addEventListener('change', renderTaskModal);
+    els.monthlyReportBtn.addEventListener('click', openMonthlyReport);
+    els.runPrintBtn.addEventListener('click', () => window.print());
+    els.closePrintBtn.addEventListener('click', closePrintCards);
+    els.closeTaskBtn.addEventListener('click', closeTaskModal);
+    els.runReportBtn.addEventListener('click', runMonthlyReport);
+    els.closeReportBtn.addEventListener('click', closeMonthlyReport);
+    els.resetFormBtn.addEventListener('click', () => resetForm());
+    els.clearAllBtn.addEventListener('click', clearAll);
+
+    renderSavedVenues();
+    renderCategories();
+    renderFilterPills();
+    applyCategoryUI();
+    syncCategoryButtons();
+    resetForm();
+    listSection.classList.add('view-hidden');
+    renderOrders();
+    document.querySelectorAll('.section-header').forEach(header => {
+
+      header.addEventListener('click', () => {
+
+        header.nextElementSibling.classList.toggle('hidden');
+
+      });
+
+    });
+  </script>
+</body>
+
+</html>
