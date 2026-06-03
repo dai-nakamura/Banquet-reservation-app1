@@ -901,7 +901,65 @@
     margin-top: 8px;
   }
 }
+.order-detail-panel {
+  margin-top: 12px;
+  border: 2px solid #111827;
+  border-radius: 18px;
+  padding: 14px;
+  background: #fff;
+}
 
+.detail-block {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.detail-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.detail-main {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.detail-alert {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+  border-radius: 14px;
+  padding: 10px;
+  font-weight: 800;
+  margin-top: 10px;
+}
+
+.detail-ok {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  border-radius: 14px;
+  padding: 10px;
+  font-weight: 800;
+  margin-top: 10px;
+}
+
+@media (max-width: 600px) {
+  .order-detail-panel {
+    position: sticky;
+    bottom: 8px;
+    z-index: 80;
+    box-shadow: 0 12px 30px rgba(0,0,0,.18);
+  }
+
+  .order-detail-actions button {
+    flex: 1;
+  }
+}
   </style>
 </head>
 
@@ -1918,38 +1976,101 @@ itemHead.addEventListener('click', (e) => {
 function showOrderDetail(order) {
   els.orderDetailPanel.classList.remove('hidden');
 
+  const items = order.items || [];
+  const people = order.allergyMaster?.people || [];
+  const hasAllergy = people.length > 0;
+
+  const itemHtml = items.length
+    ? items.map(item => {
+        const optionText = item.options?.length ? ` / ${item.options.join('・')}` : '';
+        const sizeText = item.multiSize || item.size || item.squareSize || '';
+        return `
+          <div class="mini-item">
+            <strong>${escapeHtml(item.name || item.type)}</strong>
+            <div class="meta">
+              ${escapeHtml(item.type || '')}
+              ${sizeText ? ` / ${escapeHtml(sizeText)}` : ''}
+              / 数量 ${escapeHtml(item.quantity || 1)}
+              ${optionText ? escapeHtml(optionText) : ''}
+            </div>
+            ${item.plateMessage ? `<div class="meta">プレート：${escapeHtml(item.plateMessage)}</div>` : ''}
+            ${item.notes ? `<div class="meta">備考：${escapeHtml(item.notes)}</div>` : ''}
+          </div>
+        `;
+      }).join('')
+    : '<div class="empty">商品情報なし</div>';
+
+  const allergyHtml = hasAllergy
+    ? people.map((p, idx) => `
+        <div class="mini-item">
+          <strong>${escapeHtml(p.personName || `${idx + 1}人目`)}</strong>
+          <div class="meta">主：${escapeHtml((p.primary || []).join(' / ') || '未入力')}</div>
+          ${p.finalNg ? `<div class="meta">最終NG：${escapeHtml(p.finalNg)}</div>` : ''}
+          ${p.method ? `<div class="meta">対応：${escapeHtml(p.method)}</div>` : ''}
+          ${p.note ? `<div class="meta">メモ：${escapeHtml(p.note)}</div>` : ''}
+        </div>
+      `).join('')
+    : '<div class="detail-ok">アレルギー登録なし</div>';
+
   els.orderDetailPanel.innerHTML = `
     <div class="order-detail-title">
-      ${escapeHtml(order.clientName)}
+      ${escapeHtml(order.clientName || '名称未入力')}
     </div>
 
     <div class="meta">
-      ${escapeHtml(order.category)}
+      ${escapeHtml(order.category || '')}
       /
-      ${escapeHtml(order.date)}
+      ${escapeHtml(order.date || '')}
       ${escapeHtml(order.time || '')}
+      /
+      ${escapeHtml(order.venue || '場所未入力')}
     </div>
 
-    <div class="meta" style="margin-top:8px;">
-      会場：${escapeHtml(order.venue || '')}
+    <div class="${hasAllergy ? 'detail-alert' : 'detail-ok'}">
+      ${hasAllergy ? `アレルギー対象 ${people.length}名` : 'アレルギー登録なし'}
     </div>
 
-    <div class="meta">
-      ステータス：${escapeHtml(order.status)}
+    <div class="detail-block">
+      <div class="detail-label">ステータス</div>
+      <div class="detail-main">${escapeHtml(order.status || '')}</div>
     </div>
+
+    <div class="detail-block">
+      <div class="detail-label">商品</div>
+      <div class="mini-list">${itemHtml}</div>
+    </div>
+
+    <div class="detail-block">
+      <div class="detail-label">アレルギー</div>
+      <div class="mini-list">${allergyHtml}</div>
+    </div>
+
+    ${order.orderNotes ? `
+      <div class="detail-block">
+        <div class="detail-label">全体備考</div>
+        <div class="detail-main">${escapeHtml(order.orderNotes)}</div>
+      </div>
+    ` : ''}
 
     <div class="order-detail-actions">
-      <button class="btn-dark" id="detailEditBtn">
-        編集
-      </button>
+      <button class="btn-dark" id="detailEditBtn">編集</button>
+      <button class="btn-warning" id="detailNextBtn">進める</button>
+      <button class="btn-light" id="detailCloseBtn">閉じる</button>
     </div>
   `;
 
-  document
-    .getElementById('detailEditBtn')
-    .addEventListener('click', () => {
-      editOrder(order.id);
-    });
+  document.getElementById('detailEditBtn').addEventListener('click', () => {
+    editOrder(order.id);
+  });
+
+  document.getElementById('detailNextBtn').addEventListener('click', () => {
+    advanceStatus(order.id);
+    els.orderDetailPanel.classList.add('hidden');
+  });
+
+  document.getElementById('detailCloseBtn').addEventListener('click', () => {
+    els.orderDetailPanel.classList.add('hidden');
+  });
 }
 function renderOrders() {
   const all = loadOrders();
@@ -2042,7 +2163,7 @@ function renderOrders() {
       if (!(order.allergyMaster?.people || []).length) addMasterAllergyPerson();
       (order.items || []).forEach(item => {
         addItem(item.type || 'その他');
-        const card = els.itemsArea.lastElementChild;
+        const card = els.itemsArea.firstElementChild;
         card.querySelector('.item-type').value = item.type || 'その他';
         card.querySelector('.item-name').value = item.name || '';
         card.querySelector('.item-quantity').value = item.quantity || 1;
